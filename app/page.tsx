@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 
 type Player = 'X' | 'O' | null;
 
@@ -115,6 +116,12 @@ export default function TicTacToe() {
         {/* Правила */}
         <div className="mt-4 text-center text-sm text-gray-600 dark:text-gray-400 max-w-md">
           <p>Збери три свої символи в ряд (по горизонталі, вертикалі або діагоналі), щоб перемогти!</p>
+          <Link
+            href="/pravyla"
+            className="mt-4 inline-block text-indigo-600 dark:text-indigo-400 hover:underline font-medium"
+          >
+            Детальні правила гри →
+          </Link>
         </div>
       </div>
     </div>
