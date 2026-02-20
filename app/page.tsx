@@ -1,65 +1,122 @@
-import Image from "next/image";
+'use client';
 
-export default function Home() {
+import { useState } from 'react';
+
+type Player = 'X' | 'O' | null;
+
+export default function TicTacToe() {
+  const [board, setBoard] = useState<Player[]>(Array(9).fill(null));
+  const [currentPlayer, setCurrentPlayer] = useState<'X' | 'O'>('X');
+  const [winner, setWinner] = useState<Player | 'Draw' | null>(null);
+
+  const winningCombinations = [
+    [0, 1, 2], [3, 4, 5], [6, 7, 8], // рядки
+    [0, 3, 6], [1, 4, 7], [2, 5, 8], // колонки
+    [0, 4, 8], [2, 4, 6]             // діагоналі
+  ];
+
+  const checkWinner = (newBoard: Player[]): Player | 'Draw' | null => {
+    // Перевірка на переможця
+    for (const combo of winningCombinations) {
+      const [a, b, c] = combo;
+      if (newBoard[a] && newBoard[a] === newBoard[b] && newBoard[a] === newBoard[c]) {
+        return newBoard[a];
+      }
+    }
+
+    // Перевірка на нічию
+    if (newBoard.every(cell => cell !== null)) {
+      return 'Draw';
+    }
+
+    return null;
+  };
+
+  const handleClick = (index: number) => {
+    // Ігнорувати клік якщо клітинка зайнята або гра закінчена
+    if (board[index] || winner) return;
+
+    const newBoard = [...board];
+    newBoard[index] = currentPlayer;
+    setBoard(newBoard);
+
+    const gameResult = checkWinner(newBoard);
+    if (gameResult) {
+      setWinner(gameResult);
+    } else {
+      setCurrentPlayer(currentPlayer === 'X' ? 'O' : 'X');
+    }
+  };
+
+  const resetGame = () => {
+    setBoard(Array(9).fill(null));
+    setCurrentPlayer('X');
+    setWinner(null);
+  };
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">
+      <div className="flex flex-col items-center gap-8 p-8">
+        <h1 className="text-5xl font-bold text-gray-800 dark:text-white">
+          Хрестики-Нолики
+        </h1>
+
+        {/* Статус гри */}
+        <div className="text-2xl font-semibold">
+          {winner ? (
+            <div className="text-center">
+              {winner === 'Draw' ? (
+                <p className="text-yellow-600 dark:text-yellow-400">Нічия!</p>
+              ) : (
+                <p className="text-green-600 dark:text-green-400">
+                  Переможець: {winner}!
+                </p>
+              )}
+            </div>
+          ) : (
+            <p className="text-indigo-600 dark:text-indigo-400">
+              Хід: {currentPlayer}
+            </p>
+          )}
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+
+        {/* Ігрове поле */}
+        <div className="grid grid-cols-3 gap-3 bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-2xl">
+          {board.map((cell, index) => (
+            <button
+              key={index}
+              onClick={() => handleClick(index)}
+              className={`
+                w-24 h-24 text-5xl font-bold rounded-xl
+                transition-all duration-200 transform
+                ${cell === 'X' ? 'text-blue-600 dark:text-blue-400' : ''}
+                ${cell === 'O' ? 'text-red-600 dark:text-red-400' : ''}
+                ${!cell && !winner ? 'bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 hover:scale-105 cursor-pointer' : 'bg-gray-50 dark:bg-gray-750'}
+                ${cell || winner ? 'cursor-not-allowed' : ''}
+                shadow-md
+              `}
+              disabled={!!cell || !!winner}
+            >
+              {cell}
+            </button>
+          ))}
         </div>
-      </main>
+
+        {/* Кнопка перезапуску */}
+        <button
+          onClick={resetGame}
+          className="px-8 py-3 text-xl font-semibold text-white bg-indigo-600 rounded-full
+                     hover:bg-indigo-700 active:scale-95 transition-all duration-200 shadow-lg
+                     hover:shadow-xl"
+        >
+          Нова гра
+        </button>
+
+        {/* Правила */}
+        <div className="mt-4 text-center text-sm text-gray-600 dark:text-gray-400 max-w-md">
+          <p>Збери три свої символи в ряд (по горизонталі, вертикалі або діагоналі), щоб перемогти!</p>
+        </div>
+      </div>
     </div>
   );
 }
