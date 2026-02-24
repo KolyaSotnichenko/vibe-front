@@ -123,6 +123,19 @@ export default function TicTacToe() {
             Детальні правила гри →
           </Link>
         </div>
+
+        {/* Посилання на шахмати */}
+        <div className="mt-8">
+          <Link
+            href="/shahmaty"
+            className="inline-flex items-center gap-2 px-6 py-3 text-lg font-bold text-white
+                       bg-gradient-to-r from-amber-600 to-yellow-600 rounded-full
+                       hover:from-amber-700 hover:to-yellow-700
+                       active:scale-95 transition-all duration-200 shadow-lg hover:shadow-xl"
+          >
+            ⚔️ Грати в Шахмати
+          </Link>
+        </div>
       </div>
     </div>
   );
