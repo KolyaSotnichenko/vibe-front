@@ -264,6 +264,58 @@ export default function Chess() {
     setIsCheck(false);
   };
 
+  const randomizeHeavyPieces = () => {
+    const newBoard: Board = Array(8).fill(null).map(() => Array(8).fill(null));
+
+    // Залишаємо королів на їхніх початкових позиціях
+    newBoard[0][4] = { type: 'king', color: 'black' };
+    newBoard[7][4] = { type: 'king', color: 'white' };
+
+    // Збираємо всі важкі фігури
+    const heavyPieces: Piece[] = [
+      { type: 'queen', color: 'white' },
+      { type: 'rook', color: 'white' },
+      { type: 'rook', color: 'white' },
+      { type: 'bishop', color: 'white' },
+      { type: 'bishop', color: 'white' },
+      { type: 'knight', color: 'white' },
+      { type: 'knight', color: 'white' },
+      { type: 'queen', color: 'black' },
+      { type: 'rook', color: 'black' },
+      { type: 'rook', color: 'black' },
+      { type: 'bishop', color: 'black' },
+      { type: 'bishop', color: 'black' },
+      { type: 'knight', color: 'black' },
+      { type: 'knight', color: 'black' },
+    ];
+
+    // Отримуємо всі вільні клітинки (окрім позицій королів)
+    const emptySquares: Position[] = [];
+    for (let row = 0; row < 8; row++) {
+      for (let col = 0; col < 8; col++) {
+        if (!newBoard[row][col]) {
+          emptySquares.push({ row, col });
+        }
+      }
+    }
+
+    // Перемішуємо та розміщуємо важкі фігури
+    const shuffledSquares = [...emptySquares].sort(() => Math.random() - 0.5);
+    heavyPieces.forEach((piece, index) => {
+      if (shuffledSquares[index]) {
+        const { row, col } = shuffledSquares[index];
+        newBoard[row][col] = piece;
+      }
+    });
+
+    setBoard(newBoard);
+    setSelectedSquare(null);
+    setCurrentPlayer('white');
+    setValidMoves([]);
+    setGameOver(null);
+    setIsCheck(false);
+  };
+
   const isSquareValid = (row: number, col: number) => {
     return validMoves.some(move => move.row === row && move.col === col);
   };
@@ -425,6 +477,23 @@ export default function Chess() {
                 }}
               >
                 ⚔️ НОВА ГРА
+              </button>
+
+              <button
+                onClick={randomizeHeavyPieces}
+                className="w-full px-8 py-4 text-2xl font-bold text-white rounded-xl
+                          bg-gradient-to-b from-purple-600 via-purple-700 to-purple-800
+                          hover:from-purple-500 hover:via-purple-600 hover:to-purple-700
+                          active:scale-95 transition-all duration-200
+                          border-4 border-purple-400
+                          shadow-lg hover:shadow-2xl"
+                style={{
+                  textShadow: '2px 2px 4px rgba(0,0,0,0.8)',
+                  fontFamily: 'serif',
+                  boxShadow: '0 8px 24px rgba(0,0,0,0.6), inset 0 1px 2px rgba(255,215,0,0.3)'
+                }}
+              >
+                🎲 РАНДОМ ВАЖКИХ ФІГУР
               </button>
 
               <Link href="/">
